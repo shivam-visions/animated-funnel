@@ -3,7 +3,7 @@ import { tsParticles } from "tsparticles-engine";
 export interface FunnelStage {
   label: string;
   value: number;
-  color?: string;
+  color?: string; // Custom color for each stage
 }
 
 export interface FunnelOptions {
@@ -28,10 +28,10 @@ export const createFunnel = (options: FunnelOptions): void => {
     return;
   }
 
-  // Clear the container
+  // Clear the container before rendering the funnel
   container.innerHTML = "";
 
-  // Create SVG
+  // Create SVG for funnel visualization
   const svgNS = "http://www.w3.org/2000/svg";
   const svg = document.createElementNS(svgNS, "svg");
   svg.setAttribute("width", `${width}`);
@@ -45,28 +45,28 @@ export const createFunnel = (options: FunnelOptions): void => {
     const stageHeight = (stage.value / totalValue) * height;
     const stageWidth = width - (index * width) / stages.length;
 
-    // Create path for the stage with rounded corners
+    // Create path (rounded shape) for the stage
     const path = document.createElementNS(svgNS, "rect");
     path.setAttribute("x", `${(width - stageWidth) / 2}`);
     path.setAttribute("y", `${yOffset}`);
     path.setAttribute("width", `${stageWidth}`);
     path.setAttribute("height", `${stageHeight}`);
-    path.setAttribute("rx", "15"); // Rounded corners
-    path.setAttribute("ry", "15"); // Rounded corners
-    path.setAttribute("fill", stage.color || "#7dd6f6");
+    path.setAttribute("rx", "30"); // Rounded corners
+    path.setAttribute("ry", "30"); // Rounded corners
+    path.setAttribute("fill", stage.color || "#66cc66");
 
-    // Animate gradient
+    // Create gradient effect for each stage
     const gradientId = `gradient-${index}`;
     const defs = document.createElementNS(svgNS, "defs");
     const linearGradient = document.createElementNS(svgNS, "linearGradient");
     linearGradient.setAttribute("id", gradientId);
     linearGradient.setAttribute("gradientTransform", "rotate(90)");
 
-    ["#7dd6f6", "#1aa7ec"].forEach((color, i) => {
+    // Adding stops for gradient effect
+    ["#66cc66", "#44bb44"].forEach((color, i) => {
       const stop = document.createElementNS(svgNS, "stop");
       stop.setAttribute("offset", `${i * 100}%`);
       stop.setAttribute("style", `stop-color:${color}; stop-opacity:1`);
-      stop.style.animation = "gradientShift 3s infinite alternate";
       linearGradient.appendChild(stop);
     });
 
@@ -75,7 +75,7 @@ export const createFunnel = (options: FunnelOptions): void => {
     path.setAttribute("fill", `url(#${gradientId})`);
     svg.appendChild(path);
 
-    // Tooltip logic
+    // Add tooltip functionality
     const tooltip = document.createElement("div");
     tooltip.className = "funnel-tooltip";
     tooltip.style.display = "none";
@@ -87,7 +87,7 @@ export const createFunnel = (options: FunnelOptions): void => {
       tooltip.style.top = `${e.pageY}px`;
       tooltip.style.display = "block";
 
-      // Trigger celebration for last stage
+      // Trigger celebration on the final stage
       if (index === stages.length - 1) {
         triggerCelebration(containerId, particleSettings);
       }
@@ -101,6 +101,25 @@ export const createFunnel = (options: FunnelOptions): void => {
   });
 
   container.appendChild(svg);
+
+  // Animation to display funnel stages sequentially
+  animateFunnelStages(stages.length, svg);
+};
+
+const animateFunnelStages = (totalStages: number, svg: SVGElement) => {
+  let delay = 0;
+  const paths = svg.querySelectorAll("rect");
+
+  paths.forEach((path, index) => {
+    path.style.opacity = "0";
+    path.style.transition = `opacity 1s ease-in-out ${delay}s`;
+
+    setTimeout(() => {
+      path.style.opacity = "1";
+    }, delay * 1000);
+
+    delay += 0.5; // Sequential animation delay for each stage
+  });
 };
 
 export const triggerCelebration = (
@@ -110,7 +129,7 @@ export const triggerCelebration = (
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  const { color = "#1aa7ec", number = 50, duration = 3000 } = settings || {};
+  const { color = "#44bb44", number = 50, duration = 3000 } = settings || {};
 
   tsParticles.load(containerId, {
     particles: {

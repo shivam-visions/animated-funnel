@@ -45,25 +45,32 @@ export const createFunnel = (options: FunnelOptions): void => {
     const stageHeight = (stage.value / totalValue) * height;
     const stageWidth = width - (index * width) / stages.length;
 
-    // Create path (rounded shape) for the stage
-    const path = document.createElementNS(svgNS, "rect");
-    path.setAttribute("x", `${(width - stageWidth) / 2}`);
-    path.setAttribute("y", `${yOffset}`);
-    path.setAttribute("width", `${stageWidth}`);
-    path.setAttribute("height", `${stageHeight}`);
-    path.setAttribute("rx", "30"); // Rounded corners
-    path.setAttribute("ry", "30"); // Rounded corners
-    path.setAttribute("fill", stage.color || "#66cc66");
+    // Create path (trapezoid shape) for the stage
+    const path = document.createElementNS(svgNS, "path");
 
-    // Create gradient effect for each stage
+    // Define path points for the trapezoid shape
+    const x1 = (width - stageWidth) / 2;
+    const y1 = yOffset;
+    const x2 = width - x1;
+    const y2 = y1 + stageHeight;
+    const x3 = x2 - (stageWidth * 0.2); // Adjust for top width
+    const y3 = y1;
+    const x4 = x1 + (stageWidth * 0.2); // Adjust for top width
+    const y4 = y1;
+
+    const d = `M ${x1} ${y1} L ${x2} ${y2} L ${x3} ${y3} L ${x4} ${y4} Z`; // Path definition
+
+    path.setAttribute("d", d);
+    path.setAttribute("fill", stage.color || "#ffd700"); // Orange color from image
+
+    // Include gradient for a subtle effect (optional)
     const gradientId = `gradient-${index}`;
     const defs = document.createElementNS(svgNS, "defs");
     const linearGradient = document.createElementNS(svgNS, "linearGradient");
     linearGradient.setAttribute("id", gradientId);
     linearGradient.setAttribute("gradientTransform", "rotate(90)");
 
-    // Adding stops for gradient effect
-    ["#66cc66", "#44bb44"].forEach((color, i) => {
+    ["#ffd700", "#ffa726"].forEach((color, i) => {
       const stop = document.createElementNS(svgNS, "stop");
       stop.setAttribute("offset", `${i * 100}%`);
       stop.setAttribute("style", `stop-color:${color}; stop-opacity:1`);
@@ -73,6 +80,7 @@ export const createFunnel = (options: FunnelOptions): void => {
     defs.appendChild(linearGradient);
     svg.appendChild(defs);
     path.setAttribute("fill", `url(#${gradientId})`);
+
     svg.appendChild(path);
 
     // Add tooltip functionality

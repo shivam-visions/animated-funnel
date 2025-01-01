@@ -41,22 +41,38 @@ export const createFunnel = (options: FunnelOptions): void => {
   const totalValue = stages.reduce((sum, stage) => sum + stage.value, 0);
 
   let yOffset = 0;
-
-  // Create each stage and animate
   stages.forEach((stage, index) => {
     const stageHeight = (stage.value / totalValue) * height;
     const stageWidth = width - (index * width) / stages.length;
 
-    // Create a circular path for the funnel stage (rounded)
-    const radius = stageWidth / 2;
-    const path = document.createElementNS(svgNS, "circle");
-    path.setAttribute("cx", `${width / 2}`);
-    path.setAttribute("cy", `${yOffset + radius}`);
-    path.setAttribute("r", `${radius}`);
+    // Create path for the stage with rounded corners
+    const path = document.createElementNS(svgNS, "rect");
+    path.setAttribute("x", `${(width - stageWidth) / 2}`);
+    path.setAttribute("y", `${yOffset}`);
+    path.setAttribute("width", `${stageWidth}`);
+    path.setAttribute("height", `${stageHeight}`);
+    path.setAttribute("rx", "15"); // Rounded corners
+    path.setAttribute("ry", "15"); // Rounded corners
     path.setAttribute("fill", stage.color || "#7dd6f6");
-    path.style.transition = "r 1s ease-in-out"; // Animating the radius for funnel buildup
 
-    // Append path to the SVG
+    // Animate gradient
+    const gradientId = `gradient-${index}`;
+    const defs = document.createElementNS(svgNS, "defs");
+    const linearGradient = document.createElementNS(svgNS, "linearGradient");
+    linearGradient.setAttribute("id", gradientId);
+    linearGradient.setAttribute("gradientTransform", "rotate(90)");
+
+    ["#7dd6f6", "#1aa7ec"].forEach((color, i) => {
+      const stop = document.createElementNS(svgNS, "stop");
+      stop.setAttribute("offset", `${i * 100}%`);
+      stop.setAttribute("style", `stop-color:${color}; stop-opacity:1`);
+      stop.style.animation = "gradientShift 3s infinite alternate";
+      linearGradient.appendChild(stop);
+    });
+
+    defs.appendChild(linearGradient);
+    svg.appendChild(defs);
+    path.setAttribute("fill", `url(#${gradientId})`);
     svg.appendChild(path);
 
     // Tooltip logic
@@ -80,11 +96,6 @@ export const createFunnel = (options: FunnelOptions): void => {
     path.addEventListener("mouseleave", () => {
       tooltip.style.display = "none";
     });
-
-    // Animate the funnel buildup
-    setTimeout(() => {
-      path.setAttribute("r", `${radius}`); // This triggers the animation
-    }, index * 500); // Delay to create build-up effect
 
     yOffset += stageHeight;
   });

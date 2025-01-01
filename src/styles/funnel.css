@@ -35,3 +35,17 @@
     }
   }
   
+
+  circle {
+    transform-origin: center;
+  }
+  
+  .circle-funnel {
+    transition: all 1s ease;
+    opacity: 0;
+  }
+  
+  circle:hover {
+    opacity: 1;
+    transition: all 0.3s ease-in-out;
+  }

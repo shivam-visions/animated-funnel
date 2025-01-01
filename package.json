@@ -1,6 +1,6 @@
 {
   "name": "animated-funnel",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "An animated funnel component for e-commerce dashboards, with interactive stages, tooltips, and particle effects.",
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",

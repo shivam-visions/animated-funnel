@@ -1,11 +1,16 @@
 {
   "name": "animated-funnel",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An animated funnel component for e-commerce dashboards, with interactive stages, tooltips, and particle effects.",
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
+  "files": [
+    "dist/**/*",
+    "src/styles/funnel.css"
+  ],
   "scripts": {
-    "build": "tsc && rollup -c"
+    "build": "tsc && rollup -c",
+    "postbuild": "mkdir -p dist/styles && cp src/styles/funnel.css dist/styles/funnel.css"
   },
   "keywords": [
     "funnel",

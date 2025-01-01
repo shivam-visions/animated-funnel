@@ -37,5 +37,5 @@ export default {
       } 
     }),
   ],
-  external: ['react', 'react-dom'],
+  external: ['react', 'react-dom', 'tsparticles', 'tsparticles-engine'],
 };
